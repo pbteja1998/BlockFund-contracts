@@ -29,25 +29,22 @@ contract Project {
         );_;
     }
     
-    constructor(uint id) public {
+    constructor(uint id , uint target) public {
         owner = msg.sender;
         // //creator = TokenCreator(msg.sender);
         // name = _name;
         projectId = id;
         fundRaised = 0;
         creationTime = now;
+        projectTarget = target;
     }
     
-    function setProject( string name) public{
+    function setProject( string name) public isOwner{
     //   projectId = id;
        
        projectName = name;
        
     }
-    function setTarget(uint target) public{
-       projectTarget = target; 
-    }
-    
     
     function viewProjectTarget() public view returns(uint) {
         return projectTarget;
@@ -57,14 +54,14 @@ contract Project {
         return fundRaised;
     }
     
-    function pay(uint amt) public{
+    function pay(uint amt) public {
         fundRaised = fundRaised + amt;
     }
     
     function endProject() public isOwner{
         projectActive= false;
     }
-    function projectProposal(uint extraAmountNeeded) public{
+    function projectProposal(uint extraAmountNeeded) public isOwner{
         projectTarget = projectTarget + extraAmountNeeded;
     }
 }
