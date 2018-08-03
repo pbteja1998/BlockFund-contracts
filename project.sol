@@ -2,32 +2,23 @@ pragma solidity ^0.4.0;
 
 contract Project {
     
-    uint projectId;
+    uint public projectId;
     
-    string projectName;
+    string public projectName;
     
     uint projectTarget;
     
     uint fundRaised;
     
-    bool projectActive = true;
+    bool public projectActive;
     
     address public owner;
     
     uint public creationTime;
+    
+    modifier isOwner(){require(msg.sender == owner);_;}
 
-    // Modifiers can be used to change
-    // the body of a function.
-    // If this modifier is used, it will
-    // prepend a check that only passes
-    // if the function is called from
-    // a certain address.
-    modifier isOwner(){
-        require(
-            msg.sender == owner
-            
-        );_;
-    }
+    modifier isActive(){require(projectActive == true);_;}
     
     constructor(uint id , uint target) public {
         owner = msg.sender;
@@ -37,11 +28,10 @@ contract Project {
         fundRaised = 0;
         creationTime = now;
         projectTarget = target;
+        projectActive = true;
     }
     
-    function setProject( string name) public isOwner{
-    //   projectId = id;
-       
+    function setProject( string name) public isOwner isActive{
        projectName = name;
        
     }
@@ -54,14 +44,14 @@ contract Project {
         return fundRaised;
     }
     
-    function pay(uint amt) public {
+    function pay(uint amt) public isActive {
         fundRaised = fundRaised + amt;
     }
     
-    function endProject() public isOwner{
+    function endProject() public isOwner isActive{
         projectActive= false;
     }
-    function projectProposal(uint extraAmountNeeded) public isOwner{
+    function projectProposal(uint extraAmountNeeded) public isOwner isActive{
         projectTarget = projectTarget + extraAmountNeeded;
     }
 }
