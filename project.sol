@@ -92,10 +92,10 @@ contract Token is ERC20 {
 
   /* Public variables of the token */
   //To store name for token
-  string public constant name = "$1";
+  string public constant name = "1";
 
   //To store symbol for token
-  string public constant symbol = "$2";
+  string public constant symbol = "2";
 
   //To store decimal places for token
   uint8 public constant decimals = 18;
@@ -206,11 +206,11 @@ contract Crowdsale is Token {
     //Record the timestamp when sale starts
     uint256 public startBlock;
     //No of days for which the complete crowdsale will run
-    uint256 public constant durationCrowdSale = $3;
+    uint256 public constant durationCrowdSale = 3;
     //Record the timestamp when sale ends
     uint256 public endBlock;
     // Minimum amount of ether to receive
-    uint256 public targetToAchieve = $5;
+    uint256 public targetToAchieve = 5;
     // Total number of tokens in circulation
     uint256 public totalSupply;
     //creator account where all ethers should go
@@ -218,13 +218,17 @@ contract Crowdsale is Token {
     //To store total number of ETH received
     uint256 public ETHReceived;
     //number of tokens per ether
-    uint256 public getPrice
+    uint256 public getPrice;
     // Description of the project
-    string public description = "$4";
-    // Check if crowdsale is complete or not
-    uint256 isCrowdsaleComplete;
+    string public description = "4";
     // Number of investors in the project 
-    uint256 investorCount = 0;
+    uint256 public investorCount = 0;
+    //Storing the creator address in owner
+    address public owner;
+    // Checking if goal achieved or not
+    bool public goalAchieved;
+    // Checking if crowdsale running or not
+    bool public isCrowdsaleComplete;
     
     //Emit event on receiving ETH
     event ReceivedETH(address addr, uint value);
@@ -235,15 +239,21 @@ contract Crowdsale is Token {
     //Emit event when any change happens in crowdsale state
     event StateChanged(bool changed);
 
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
     /**
      * @dev Constuctor of the contract
      *
      */
     function Crowdsale() public {
-        creator = $5;
+        creator = 0xca35b7d915458ef540ade6068dfe2f44e8fa733c;
+        owner = creator;
         getPrice = 1e18;
 	startBlock = now;
-	endBlock = now.Add(durationCrowdSale)
+	endBlock = now.Add(durationCrowdSale);
 	isCrowdsaleComplete = false;
     }
 
@@ -268,7 +278,7 @@ contract Crowdsale is Token {
     /*
     * To create and assign  Tokens to transaction initiator
     */
-    function createTokens(address beneficiary) internal stopInEmergency  respectTimeFrame {
+    function createTokens(address beneficiary) internal respectTimeFrame {
         //Make sure sent Eth is not 0
         require(msg.value != 0);
         //Initially count without giving discount
@@ -286,27 +296,15 @@ contract Crowdsale is Token {
     }
 
 
-    function lowerGoal(uint value) public onlyOwner
-    {
-	    assert (now > endBlock);
-	    assert(!goalAchieved && isCrowdsaleComplete)
-	    targetToAchieve = value*1e18; // value will be amount of ether    
-    }
-
-    function lowerCrowdsaleLimitVoting() public
-    {
-	    
-    }
-
     /*
     * Finalize the crowdsale
     */
     function finalize() public onlyOwner {
-	    assert(!isCrowdsaleComplete)
+	    assert(!isCrowdsaleComplete);
+	    assert(now >= endBlock);
 	    if(this.balance >= targetToAchieve)
 	    {
 		    goalAchieved = true;
-		    isCrowdsaleComplete = false;
 	    }
 	    else
 		    goalAchieved = false;
